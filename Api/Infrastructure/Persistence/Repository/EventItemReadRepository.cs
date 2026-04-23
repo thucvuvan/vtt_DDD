@@ -4,7 +4,7 @@ using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 
-namespace Infrastructure.Persistence;
+namespace Infrastructure.Persistence.Repository;
 
 public class EventItemReadRepository : IEventItemReadRepository
 {

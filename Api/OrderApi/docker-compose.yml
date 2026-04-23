@@ -26,6 +26,16 @@ services:
       start_period: 40s
     command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
 
+  redis:
+    image: redis:7-alpine
+    hostname: redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - vtt-net
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
   orderapi:
     image: orderapi
     hostname: orderapi
@@ -35,11 +45,14 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       TZ: Asia/Ho_Chi_Minh
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__Default: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-pre_event};User Id=root;Password=${MYSQL_ROOT_PASSWORD:-changeme};SslMode=None;"
+      ConnectionStrings__Redis: "redis:6379,abortConnect=false,connectTimeout=2000"
     #volumes:
     #- E:/Source Code/vtt_DDD/Api/OrderApi/appsettings.json:/app/appsettings.json
     #- E:/Source Code/vtt_DDD/Api/OrderApi/app.config:/app/OrderApi.dll.config
