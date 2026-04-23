@@ -51,6 +51,8 @@ services:
       TZ: Asia/Ho_Chi_Minh
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      Logging__LogLevel__Default: Debug
+      Logging__LogLevel__Application: Debug
       ConnectionStrings__Default: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-pre_event};User Id=root;Password=${MYSQL_ROOT_PASSWORD:-changeme};SslMode=None;"
       ConnectionStrings__Redis: "redis:6379,abortConnect=false,connectTimeout=2000"
     volumes:
