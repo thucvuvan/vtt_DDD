@@ -10,4 +10,13 @@ public interface ICacheService
         TimeSpan? absoluteExpirationRelativeToNow = null,
         CancellationToken cancellationToken = default);
     Task RemoveAsync(string key, CancellationToken cancellationToken = default);
+    Task<bool> TryAcquireLockAsync(
+        string key,
+        string value,
+        TimeSpan expiry,
+        CancellationToken cancellationToken = default);
+    Task<bool> ReleaseLockAsync(
+        string key,
+        string value,
+        CancellationToken cancellationToken = default);
 }

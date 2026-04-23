@@ -1,13 +1,21 @@
 using Application.Abstractions;
 using Microsoft.Extensions.Caching.Distributed;
+using StackExchange.Redis;
 
 namespace Infrastructure.Caching;
 
 public sealed class RedisCacheService : ICacheService
 {
-    private readonly IDistributedCache _cache;
+    private const string ReleaseLockScript = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 
-    public RedisCacheService(IDistributedCache cache) => _cache = cache;
+    private readonly IDistributedCache _cache;
+    private readonly IDatabase _redisDb;
+
+    public RedisCacheService(IDistributedCache cache, IConnectionMultiplexer multiplexer)
+    {
+        _cache = cache;
+        _redisDb = multiplexer.GetDatabase();
+    }
 
     public async Task<string?> GetStringAsync(string key, CancellationToken cancellationToken = default) =>
         await _cache.GetStringAsync(key, cancellationToken);
@@ -26,4 +34,27 @@ public sealed class RedisCacheService : ICacheService
 
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default) =>
         await _cache.RemoveAsync(key, cancellationToken);
+
+    public async Task<bool> TryAcquireLockAsync(
+        string key,
+        string value,
+        TimeSpan expiry,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return await _redisDb.StringSetAsync(key, value, expiry, when: When.NotExists);
+    }
+
+    public async Task<bool> ReleaseLockAsync(
+        string key,
+        string value,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var result = (long)await _redisDb.ScriptEvaluateAsync(
+            ReleaseLockScript,
+            keys: new RedisKey[] { key },
+            values: new RedisValue[] { value });
+        return result > 0;
+    }
 }

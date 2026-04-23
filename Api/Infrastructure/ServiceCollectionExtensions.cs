@@ -3,6 +3,7 @@ using Infrastructure.Caching;
 using Infrastructure.Persistence.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace Infrastructure;
 
@@ -17,6 +18,8 @@ public static class ServiceCollectionExtensions
             {
                 options.Configuration = redisConnection;
             });
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+                ConnectionMultiplexer.Connect(redisConnection));
             services.AddSingleton<ICacheService, RedisCacheService>();
         }
         else
