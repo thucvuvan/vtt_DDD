@@ -42,6 +42,6 @@ public class EventItemReadRepository : IEventItemReadRepository
         await using var connection = new MySqlConnection(_connectionString);
         var rows = await connection.QueryAsync<EventItem>(
             new CommandDefinition(SelectAll, cancellationToken: cancellationToken));
-        return rows.AsList();
+        return rows.ToList();
     }
 }
