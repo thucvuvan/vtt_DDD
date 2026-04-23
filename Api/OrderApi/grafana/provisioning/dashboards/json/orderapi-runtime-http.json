@@ -307,6 +307,66 @@
       ],
       "title": "ThreadPool Queue Length (Instant)",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": { "unit": "Bps" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 34 },
+      "id": 11,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(container_network_receive_bytes_total{id=\"/\",interface!=\"lo\"}[1m]))",
+          "legendFormat": "rx",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(container_network_transmit_bytes_total{id=\"/\",interface!=\"lo\"}[1m]))",
+          "legendFormat": "tx",
+          "refId": "B"
+        }
+      ],
+      "title": "Host Network Traffic (RX/TX bytes/s)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": { "unit": "bytes" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 34 },
+      "id": 12,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "sum(container_network_receive_bytes_total{id=\"/\",interface!=\"lo\"})",
+          "legendFormat": "rx total",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(container_network_transmit_bytes_total{id=\"/\",interface!=\"lo\"})",
+          "legendFormat": "tx total",
+          "refId": "B"
+        }
+      ],
+      "title": "Host Network Bytes Total",
+      "type": "timeseries"
     }
   ],
   "refresh": "10s",
@@ -319,6 +379,6 @@
   "timezone": "",
   "title": "OrderApi Runtime + HTTP + Lock Contention",
   "uid": "orderapi-runtime-http",
-  "version": 5,
+  "version": 7,
   "weekStart": ""
 }

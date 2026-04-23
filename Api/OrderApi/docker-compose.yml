@@ -8,6 +8,8 @@ services:
     image: mysql:8.4
     hostname: mysql
     restart: unless-stopped
+    cpus: "1.0"
+    mem_limit: 2g
     environment:
       TZ: Asia/Ho_Chi_Minh
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
@@ -30,6 +32,8 @@ services:
     image: redis:7-alpine
     hostname: redis
     restart: unless-stopped
+    cpus: "1.0"
+    mem_limit: 1g
     command: ["redis-server", "--appendonly", "yes"]
     networks:
       - vtt-net
@@ -67,8 +71,12 @@ services:
     image: prom/prometheus:v2.55.1
     hostname: prometheus
     restart: unless-stopped
+    cpus: "1.0"
+    mem_limit: 1g
     depends_on:
       orderapi:
+        condition: service_started
+      cadvisor:
         condition: service_started
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -81,10 +89,33 @@ services:
     networks:
       - vtt-net
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    hostname: cadvisor
+    restart: unless-stopped
+    cpus: "1.0"
+    mem_limit: 1g
+    privileged: true
+    command:
+      - "--housekeeping_interval=10s"
+      - "--docker_only=true"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - E:/Data/Docker/cadvisor_data:/var/lib/cadvisor
+    ports:
+      - "8081:8080"
+    networks:
+      - vtt-net
+
   grafana:
     image: grafana/grafana:11.2.2
     hostname: grafana
     restart: unless-stopped
+    cpus: "1.0"
+    mem_limit: 1g
     depends_on:
       prometheus:
         condition: service_started
