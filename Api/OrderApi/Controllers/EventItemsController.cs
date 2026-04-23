@@ -1,6 +1,7 @@
 using Application.Abstractions;
 using Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace OrderApi.Controllers;
 
@@ -17,6 +18,7 @@ public class EventItemsController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<EventItemListItem>), StatusCodes.Status200OK)]
+    [EnableRateLimiting("fixed")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var items = await _eventItems.GetAllAsync(cancellationToken);
