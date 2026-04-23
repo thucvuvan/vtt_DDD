@@ -18,10 +18,13 @@ public class EventItemsController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<EventItemListItem>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     //[EnableRateLimiting("fixed")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var items = await _eventItems.GetAllAsync(cancellationToken);
+        if (items is null)
+            return NoContent();
         return Ok(items);
     }
 }

@@ -2,6 +2,7 @@ using System.Text.Json;
 using Application.Abstractions;
 using Application.Dtos;
 using Application.Mappings;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -11,7 +12,6 @@ public sealed class EventItemListService : IEventItemListService
     private const string EventItemsCacheLockKey = "lock:vtt:orderapi:eventitems:all";
     private static readonly TimeSpan EventItemsCacheTtl = TimeSpan.FromMinutes(1);
     private static readonly TimeSpan CacheLockTtl = TimeSpan.FromSeconds(10);
-    private static readonly TimeSpan LockRetryDelay = TimeSpan.FromMilliseconds(80);
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -20,14 +20,19 @@ public sealed class EventItemListService : IEventItemListService
 
     private readonly IEventItemReadRepository _repository;
     private readonly ICacheService _cache;
+    private readonly ILogger<EventItemListService> _logger;
 
-    public EventItemListService(IEventItemReadRepository repository, ICacheService cache)
+    public EventItemListService(
+        IEventItemReadRepository repository,
+        ICacheService cache,
+        ILogger<EventItemListService> logger)
     {
         _repository = repository;
         _cache = cache;
+        _logger = logger;
     }
 
-    public async Task<IReadOnlyList<EventItemListItem>> GetAllAsync(
+    public async Task<IReadOnlyList<EventItemListItem>?> GetAllAsync(
         CancellationToken cancellationToken = default)
     {
         var cachedItems = await TryGetFromCacheAsync(cancellationToken);
@@ -44,27 +49,8 @@ public sealed class EventItemListService : IEventItemListService
         if (lockAcquired)
             return await LoadAndCacheUnderLockAsync(lockValue, cancellationToken);
 
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            //Console.WriteLine("Request LOCK, poll cache");
-            await Task.Delay(LockRetryDelay, cancellationToken);
-
-            cachedItems = await TryGetFromCacheAsync(cancellationToken);
-            if (cachedItems is not null)
-                return cachedItems;
-
-            lockAcquired = await _cache.TryAcquireLockAsync(
-                EventItemsCacheLockKey,
-                lockValue,
-                CacheLockTtl,
-                cancellationToken);
-
-            if (lockAcquired)
-                return await LoadAndCacheUnderLockAsync(lockValue, cancellationToken);
-        }
-
-        cancellationToken.ThrowIfCancellationRequested();
-        return Array.Empty<EventItemListItem>();
+        _logger.LogDebug("Event items cache lock is held by another request; return null.");
+        return null;
     }
 
     private async Task<IReadOnlyList<EventItemListItem>?> TryGetFromCacheAsync(CancellationToken cancellationToken)
@@ -89,7 +75,7 @@ public sealed class EventItemListService : IEventItemListService
                 return cachedItems;
             }
 
-            Console.WriteLine("LoadFromDatabaseAndCacheAsync");
+            _logger.LogDebug("Event items cache miss; loading from database.");
             return await LoadFromDatabaseAndCacheAsync(cancellationToken);
         }
         finally

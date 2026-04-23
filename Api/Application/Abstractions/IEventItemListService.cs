@@ -4,5 +4,5 @@ namespace Application.Abstractions;
 
 public interface IEventItemListService
 {
-    Task<IReadOnlyList<EventItemListItem>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<EventItemListItem>?> GetAllAsync(CancellationToken cancellationToken = default);
 }
