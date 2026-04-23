@@ -1,6 +1,7 @@
 ﻿using Application;
 using Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
+using OpenTelemetry.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,20 +14,29 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddRateLimiter(options =>
-{
-    options.AddFixedWindowLimiter("fixed", opt =>
+//builder.Services.AddRateLimiter(options =>
+//{
+//    options.AddFixedWindowLimiter("fixed", opt =>
+//    {
+//        opt.PermitLimit = 1;
+//        opt.Window = TimeSpan.FromSeconds(5);
+//        opt.QueueLimit = 0;
+//    });
+//    options.OnRejected = async (context, token) =>
+//    {
+//        context.HttpContext.Response.StatusCode = 429;
+//        await context.HttpContext.Response.WriteAsync("Too many requests");
+//    };
+//});
+
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics =>
     {
-        opt.PermitLimit = 1;
-        opt.Window = TimeSpan.FromSeconds(5);
-        opt.QueueLimit = 0;
+        metrics
+            .AddAspNetCoreInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddPrometheusExporter();
     });
-    options.OnRejected = async (context, token) =>
-    {
-        context.HttpContext.Response.StatusCode = 429;
-        await context.HttpContext.Response.WriteAsync("Too many requests");
-    };
-});
 
 var app = builder.Build();
 
@@ -43,6 +53,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseRateLimiter();
+//app.UseRateLimiter();
+
+app.MapPrometheusScrapingEndpoint();
 
 app.Run();

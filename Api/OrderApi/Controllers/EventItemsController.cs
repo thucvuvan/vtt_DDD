@@ -18,7 +18,7 @@ public class EventItemsController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<EventItemListItem>), StatusCodes.Status200OK)]
-    [EnableRateLimiting("fixed")]
+    //[EnableRateLimiting("fixed")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var items = await _eventItems.GetAllAsync(cancellationToken);
