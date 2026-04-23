@@ -63,6 +63,43 @@ services:
     networks:
      - vtt-net
 
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    hostname: prometheus
+    restart: unless-stopped
+    depends_on:
+      orderapi:
+        condition: service_started
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    volumes:
+      - E:/Source Code/vtt_DDD/Api/OrderApi/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - E:/Data/Docker/prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - vtt-net
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    hostname: grafana
+    restart: unless-stopped
+    depends_on:
+      prometheus:
+        condition: service_started
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - E:/Source Code/vtt_DDD/Api/OrderApi/grafana/provisioning:/etc/grafana/provisioning:ro
+      - E:/Data/Docker/grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - vtt-net
+
 #      docker compose `
 #      -p vtt `
 #      -f OrderApi/docker-compose.yml up -d `

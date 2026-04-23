@@ -1,4 +1,4 @@
-﻿using Application;
+using Application;
 using Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
 using OpenTelemetry.Metrics;
