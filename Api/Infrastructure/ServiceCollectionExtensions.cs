@@ -1,0 +1,14 @@
+using Application.Abstractions;
+using Infrastructure.Persistence;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Infrastructure;
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    {
+        services.AddScoped<IEventItemReadRepository, EventItemReadRepository>();
+        return services;
+    }
+}

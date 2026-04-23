@@ -1,0 +1,11 @@
+/Api/.vs
+/Api/OrderApi/bin
+/Api/OrderApi/obj
+/Api/Application/bin
+/Api/Application/obj
+/Api/Domain/bin
+/Api/Domain/obj
+/Api/Infrastructure/bin
+/Api/Infrastructure/obj
+/Api/Shared/bin
+/Api/Shared/obj
