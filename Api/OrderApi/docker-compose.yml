@@ -53,9 +53,9 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__Default: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-pre_event};User Id=root;Password=${MYSQL_ROOT_PASSWORD:-changeme};SslMode=None;"
       ConnectionStrings__Redis: "redis:6379,abortConnect=false,connectTimeout=2000"
-    #volumes:
-    #- E:/Source Code/vtt_DDD/Api/OrderApi/appsettings.json:/app/appsettings.json
-    #- E:/Source Code/vtt_DDD/Api/OrderApi/app.config:/app/OrderApi.dll.config
+    volumes:
+     - E:/Source Code/vtt_DDD/Api/OrderApi/appsettings.json:/app/appsettings.json
+     - E:/Source Code/vtt_DDD/Api/OrderApi/app.config:/app/OrderApi.dll.config
     ports:
       - "8888:8080"
     networks:
