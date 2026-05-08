@@ -1,4 +1,6 @@
 using Application;
+using Application.Abstractions;
+using Application.Services;
 using Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
@@ -60,5 +62,20 @@ app.MapControllers();
 //app.UseRateLimiter();
 
 app.MapPrometheusScrapingEndpoint();
+
+using (var scope = app.Services.CreateScope())
+{
+    var eventItemListService = scope.ServiceProvider.GetRequiredService<IEventItemListService>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupWarmup");
+    try
+    {
+        await eventItemListService.GetAllAsync();
+        logger.LogCritical("Warmup completed: EventItemListService.GetAllAsync");
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "Warmup failed: EventItemListService.GetAllAsync");
+    }
+}
 
 app.Run();
