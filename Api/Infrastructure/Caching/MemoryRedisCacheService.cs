@@ -23,9 +23,8 @@ public sealed class MemoryRedisCacheService : ICacheService
         _redisDb = multiplexer.GetDatabase();
     }
 
-    public async Task<string?> GetStringAsync(string key, CancellationToken cancellationToken = default) =>
+    public async Task<string?> GetRedisStringAsync(string key, CancellationToken cancellationToken = default) =>
         await _cache.GetStringAsync(key, cancellationToken);
-
     public async Task<string?> GetMemOrRedis(string key, CancellationToken cancellationToken = default)
     {
         if (_memoryCache.TryGetValue<string>(key, out var cachedInMemory))
@@ -65,6 +64,21 @@ public sealed class MemoryRedisCacheService : ICacheService
         if (absoluteExpirationRelativeToNow.HasValue)
             options.SetAbsoluteExpiration(absoluteExpirationRelativeToNow.Value);
         await _cache.SetStringAsync(key, value, options, token: cancellationToken);
+    }
+
+    public string GetMemoryString(string key, CancellationToken cancellationToken = default)
+    {
+        if (_memoryCache.TryGetValue<string>(key, out var cachedInMemory))
+            return cachedInMemory;
+        return null;
+    }
+
+    public async Task SetMemoryString(string key, string value, TimeSpan? absoluteExpirationRelativeToNow = null, CancellationToken cancellationToken = default)
+    {
+        if (absoluteExpirationRelativeToNow.HasValue)
+            _memoryCache.Set(key, value, absoluteExpirationRelativeToNow.Value);
+        else
+            _memoryCache.Set(key, value);
     }
 
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default) =>

@@ -1,11 +1,15 @@
 using Application;
 using Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 using OpenTelemetry.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+//builder.Logging.SetMinimumLevel(LogLevel.Critical);
+//builder.Logging.AddFilter("Microsoft", LogLevel.Critical);
+//builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Critical);
 
 builder.Services.AddControllers();
 builder.Services.AddApplication();

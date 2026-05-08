@@ -49,13 +49,15 @@ public sealed class EventItemListService : IEventItemListService
         if (lockAcquired)
             return await LoadAndCacheUnderLockAsync(lockValue, cancellationToken);
 
-        _logger.LogDebug("Event items cache lock is held by another request; return null.");
+        //_logger.LogCritical("Event items cache lock is held by another request; return null.");
         return null;
     }
 
     private async Task<IReadOnlyList<EventItemListItem>?> TryGetFromCacheAsync(CancellationToken cancellationToken)
     {
-        var cached = await _cache.GetStringAsync(EventItemsCacheKey, cancellationToken);
+        //var cached = await _cache.GetRedisStringAsync(EventItemsCacheKey, cancellationToken);
+        //var cached = _cache.GetMemoryString(EventItemsCacheKey, cancellationToken);
+        var cached = await _cache.GetMemOrRedis(EventItemsCacheKey, cancellationToken);
         if (string.IsNullOrEmpty(cached))
             return null;
 
@@ -75,7 +77,7 @@ public sealed class EventItemListService : IEventItemListService
                 return cachedItems;
             }
 
-            _logger.LogDebug("Event items cache miss; loading from database.");
+            _logger.LogCritical("Event items cache miss; loading from database.");
             return await LoadFromDatabaseAndCacheAsync(cancellationToken);
         }
         finally
@@ -89,11 +91,9 @@ public sealed class EventItemListService : IEventItemListService
     {
         var entities = await _repository.GetAllAsync(cancellationToken);
         var list = entities.Select(e => e.ToDto()).ToList();
-        await _cache.SetStringAsync(
-            EventItemsCacheKey,
-            JsonSerializer.Serialize(list, JsonOptions),
-            EventItemsCacheTtl,
-            cancellationToken);
+        //await _cache.SetStringAsync(EventItemsCacheKey, JsonSerializer.Serialize(list, JsonOptions), EventItemsCacheTtl,cancellationToken);
+        //_cache.SetMemoryString(EventItemsCacheKey, JsonSerializer.Serialize(list, JsonOptions), EventItemsCacheTtl,cancellationToken);
+        await _cache.SetMemAndRedis(EventItemsCacheKey, JsonSerializer.Serialize(list, JsonOptions), EventItemsCacheTtl,cancellationToken);
         return list;
     }
 }
