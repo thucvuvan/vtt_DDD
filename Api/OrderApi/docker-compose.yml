@@ -44,7 +44,7 @@ services:
     image: orderapi
     hostname: orderapi
     restart: unless-stopped
-    cpus: "2.0"
+    cpus: "1.0"
     mem_limit: 1g
     depends_on:
       mysql:
