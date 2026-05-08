@@ -89,7 +89,7 @@ public sealed class EventItemListService : IEventItemListService
     {
         var entities = await _repository.GetAllAsync(cancellationToken);
         var list = entities.Select(e => e.ToDto()).ToList();
-        await _cache.SetMemAndRedis(
+        await _cache.SetStringAsync(
             EventItemsCacheKey,
             JsonSerializer.Serialize(list, JsonOptions),
             EventItemsCacheTtl,
