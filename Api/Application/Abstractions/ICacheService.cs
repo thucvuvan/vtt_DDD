@@ -4,7 +4,13 @@ namespace Application.Abstractions;
 public interface ICacheService
 {
     Task<string?> GetStringAsync(string key, CancellationToken cancellationToken = default);
+    Task<string?> GetMemOrRedis(string key, CancellationToken cancellationToken = default);
     Task SetStringAsync(
+        string key,
+        string value,
+        TimeSpan? absoluteExpirationRelativeToNow = null,
+        CancellationToken cancellationToken = default);
+    Task SetMemAndRedis(
         string key,
         string value,
         TimeSpan? absoluteExpirationRelativeToNow = null,

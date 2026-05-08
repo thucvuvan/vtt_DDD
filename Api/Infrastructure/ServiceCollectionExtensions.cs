@@ -11,6 +11,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddMemoryCache();
+
         var redisConnection = configuration.GetConnectionString("Redis");
         if (!string.IsNullOrWhiteSpace(redisConnection))
         {
@@ -20,7 +22,7 @@ public static class ServiceCollectionExtensions
             });
             services.AddSingleton<IConnectionMultiplexer>(_ =>
                 ConnectionMultiplexer.Connect(redisConnection));
-            services.AddSingleton<ICacheService, RedisCacheService>();
+            services.AddSingleton<ICacheService, MemoryRedisCacheService>();
         }
         else
         {

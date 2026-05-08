@@ -15,7 +15,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-pre_event}
     volumes:
-      - "E:/Data/Docker/vtt_volume:/var/lib/mysql"
+      - "D:/Data/Docker/vtt_volumD:/var/lib/mysql"
     networks:
       - vtt-net
     ports:
@@ -60,8 +60,8 @@ services:
       ConnectionStrings__Default: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-pre_event};User Id=root;Password=${MYSQL_ROOT_PASSWORD:-changeme};SslMode=None;"
       ConnectionStrings__Redis: "redis:6379,abortConnect=false,connectTimeout=2000"
     volumes:
-     - E:/Source Code/vtt_DDD/Api/OrderApi/appsettings.json:/app/appsettings.json
-     - E:/Source Code/vtt_DDD/Api/OrderApi/app.config:/app/OrderApi.dll.config
+     - D:/Source Code/anonystick/vtt_DDD/Api/OrderApi/appsettings.json:/app/appsettings.json
+     - D:/Source Code/anonystick/vtt_DDD/Api/OrderApi/app.config:/app/OrderApi.dll.config
     ports:
       - "8888:8080"
     networks:
@@ -82,8 +82,8 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
     volumes:
-      - E:/Source Code/vtt_DDD/Api/OrderApi/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - E:/Data/Docker/prometheus_data:/prometheus
+      - D:/Source Code/anonystick/vtt_DDD/Api/OrderApi/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - D:/Data/Docker/prometheus_data:/prometheus
     ports:
       - "9090:9090"
     networks:
@@ -104,7 +104,7 @@ services:
       - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-      - E:/Data/Docker/cadvisor_data:/var/lib/cadvisor
+      - D:/Data/Docker/cadvisor_data:/var/lib/cadvisor
     ports:
       - "8081:8080"
     networks:
@@ -124,8 +124,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
       GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
-      - E:/Source Code/vtt_DDD/Api/OrderApi/grafana/provisioning:/etc/grafana/provisioning:ro
-      - E:/Data/Docker/grafana_data:/var/lib/grafana
+      - D:/Source Code/anonystick/vtt_DDD/Api/OrderApi/grafana/provisioning:/etc/grafana/provisioning:ro
+      - D:/Data/Docker/grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
     networks:
@@ -137,28 +137,6 @@ services:
 #      --scale orderapi=1 `
 #      orderapi
 
-
+# docker build --rm -f "OrderApi/Dockerfile" -t orderapi .
 # docker compose -p vtt -f OrderApi/docker-compose.yml up -d
 # docker compose -p vtt -f OrderApi/docker-compose.yml down
-
-# CREATE TABLE IF NOT EXISTS pre_event.`event_item` (
-#   `id`                    BIGINT(20)   NOT NULL AUTO_INCREMENT COMMENT 'Event item ID',
-#   `ev_it_title`           VARCHAR(50)  NOT NULL COMMENT 'Event title',
-#   `ev_it_subtitle`        VARCHAR(50)  NULL COMMENT 'Event item subtitle',
-#   `ev_it_description`     TEXT         COMMENT 'Detailed description in rich text',
-#   `ev_it_initial_stock`   INT(11)      NOT NULL DEFAULT '0' COMMENT 'Initial stock quantity',
-#   `ev_it_available_stock` INT(11)      NOT NULL DEFAULT '0' COMMENT 'Current available stock',
-#   `ev_it_is_stock_prepared` INT(11)    NOT NULL DEFAULT '0' COMMENT 'Has stock been pre-warmed',
-#   `ev_it_original_price`  BIGINT(20)   NOT NULL COMMENT 'Original price of the event item',
-#   `ev_it_flash_price`     BIGINT(20)   NOT NULL COMMENT 'Flash sale price',
-#   `ev_it_start_time`      DATETIME     NOT NULL COMMENT 'Flash sale start time',
-#   `ev_it_end_time`        DATETIME     NOT NULL COMMENT 'Flash sale end time',
-#   `ev_it_rules`           TEXT         COMMENT 'Sale rules in JSON format',
-#   `ev_it_status`          INT(11)      NOT NULL DEFAULT '0' COMMENT 'Item status (e.g., active)',
-#   `ev_it_activity_id`     BIGINT(20)   NOT NULL COMMENT 'Associated activity ID',
-#   `ev_it_updated_at`      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-#   `ev_it_created_at`      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-#   PRIMARY KEY (`id`),
-#   KEY `idx_ev_it_activity_id` (`ev_it_activity_id`),
-#   KEY `idx_ev_it_status` (`ev_it_status`)
-# ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Event item details table';
